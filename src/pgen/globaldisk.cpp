@@ -66,11 +66,11 @@ static Real gm;
  *====================================================================================*/
 
 void Inflow_X1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &a, FaceField &b,
-    Real time, Real dt, int is, int ie, int js, int je, int ks, int ke);
+    Real time, Real dt, int is, int ie, int js, int je, int ks, int ke, int ngh);
 
 
 void Outflow_X2(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &a, FaceField &b,
-    Real time, Real dt, int is, int ie, int js, int je, int ks, int ke);
+    Real time, Real dt, int is, int ie, int js, int je, int ks, int ke, int ngh);
 
 
 void DiskOpacity(MeshBlock *pmb, AthenaArray<Real> &prim);
@@ -698,13 +698,13 @@ void DiskOpacity(MeshBlock *pmb, AthenaArray<Real> &prim)
 
 
 void Inflow_X1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &a, FaceField &b,
-    Real time, Real dt, int is, int ie, int js, int je, int ks, int ke)
+    Real time, Real dt, int is, int ie, int js, int je, int ks, int ke, int ngh)
 {
 
   
   for (int k=ks; k<=ke; ++k) {
     for (int j=js; j<=je; ++j) {
-      for (int i=1; i<=NGHOST; ++i) {
+      for (int i=1; i<=ngh; ++i) {
           a(IDN,k,j,is-i) = a(IDN,k,j,is);
           a(IVX,k,j,is-i) = std::min(a(IVX,k,j,is),0.0);
           a(IVY,k,j,is-i) = a(IVY,k,j,is);
@@ -719,7 +719,7 @@ void Inflow_X1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &a, FaceField
     for(int k=ks; k<=ke; ++k){
     for(int j=js; j<=je; ++j){
 #pragma simd
-      for(int i=1; i<=NGHOST; ++i){
+      for(int i=1; i<=ngh; ++i){
         b.x1f(k,j,is-i) = b.x1f(k,j,is);
       }
     }}
@@ -727,7 +727,7 @@ void Inflow_X1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &a, FaceField
     for(int k=ks; k<=ke; ++k){
     for(int j=js; j<=je+1; ++j){
 #pragma simd
-      for(int i=1; i<=NGHOST; ++i){
+      for(int i=1; i<=ngh; ++i){
         b.x2f(k,j,is-i) = b.x2f(k,j,is);
       }
     }}
@@ -735,7 +735,7 @@ void Inflow_X1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &a, FaceField
     for(int k=ks; k<=ke+1; ++k){
     for(int j=js; j<=je; ++j){
 #pragma simd
-      for(int i=1; i<=NGHOST; ++i){
+      for(int i=1; i<=ngh; ++i){
         b.x3f(k,j,is-i) = b.x3f(k,j,is);
       }
     }}
@@ -747,12 +747,12 @@ void Inflow_X1(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &a, FaceField
 }
 
 void Outflow_X2(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &a, FaceField &b,
-    Real time, Real dt, int is, int ie, int js, int je, int ks, int ke)
+    Real time, Real dt, int is, int ie, int js, int je, int ks, int ke, int ngh)
 {
 
   for (int k=ks; k<=ke; ++k) {
     for (int j=js; j<=je; ++j) {
-      for (int i=1; i<=NGHOST; ++i) {
+      for (int i=1; i<=ngh; ++i) {
           a(IDN,k,j,ie+i) = a(IDN,k,j,ie);
           a(IVX,k,j,ie+i) = std::max(a(IVX,k,j,ie),0.0);
           a(IVY,k,j,ie+i) = a(IVY,k,j,ie);
@@ -767,7 +767,7 @@ void Outflow_X2(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &a, FaceFiel
     for(int k=ks; k<=ke; ++k){
     for(int j=js; j<=je; ++j){
 #pragma simd
-      for(int i=1; i<=NGHOST; ++i){
+      for(int i=1; i<=ngh; ++i){
         b.x1f(k,j,ie+i+1) = b.x1f(k,j,ie+1);
       }
     }}
@@ -775,7 +775,7 @@ void Outflow_X2(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &a, FaceFiel
     for(int k=ks; k<=ke; ++k){
     for(int j=js; j<=je+1; ++j){
 #pragma simd
-      for(int i=1; i<=NGHOST; ++i){
+      for(int i=1; i<=ngh; ++i){
         b.x2f(k,j,ie+i) = b.x2f(k,j,ie);
       }
     }}
@@ -783,7 +783,7 @@ void Outflow_X2(MeshBlock *pmb, Coordinates *pco, AthenaArray<Real> &a, FaceFiel
     for(int k=ks; k<=ke+1; ++k){
     for(int j=js; j<=je; ++j){
 #pragma simd
-      for(int i=1; i<=NGHOST; ++i){
+      for(int i=1; i<=ngh; ++i){
         b.x3f(k,j,ie+i) = b.x3f(k,j,ie);
       }
     }}
