@@ -92,8 +92,8 @@ void Mesh::InitUserMeshData(ParameterInput *pin)
   
     // Enroll boundary functions
 
-  EnrollUserBoundaryFunction(INNER_X1, Inflow_X1);
-  EnrollUserBoundaryFunction(OUTER_X1, Outflow_X2);
+  EnrollUserBoundaryFunction(BoundaryFace::inner_x1, Inflow_X1);
+  EnrollUserBoundaryFunction(BoundaryFace::outer_x1, Outflow_X2);
   
   tfloor = pin->GetOrAddReal("radiation", "tfloor", 0.005);
   rhofloor = pin->GetOrAddReal("hydro", "dfloor", 1.e-9);
