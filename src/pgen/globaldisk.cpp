@@ -663,7 +663,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin)
 
 void DiskOpacity(MeshBlock *pmb, AthenaArray<Real> &prim)
 {
-  Radiation *prad = pmb->prad;
+  NRRadiation *pnrrad = pmb->pnrrad;
   int il = pmb->is; int jl = pmb->js; int kl = pmb->ks;
   int iu = pmb->ie; int ju = pmb->je; int ku = pmb->ke;
   il -= NGHOST;
@@ -680,15 +680,15 @@ void DiskOpacity(MeshBlock *pmb, AthenaArray<Real> &prim)
   for (int k=kl; k<=ku; ++k) {
   for (int j=jl; j<=ju; ++j) {
   for (int i=il; i<=iu; ++i) {
-  for (int ifr=0; ifr<prad->nfreq; ++ifr){
+  for (int ifr=0; ifr<pnrrad->nfreq; ++ifr){
     Real rho  = prim(IDN,k,j,i);
     Real gast = std::max(prim(IEN,k,j,i)/rho,tfloor);
     Real tpower= 1.0/(gast*gast*gast*sqrt(gast));
 
-    prad->sigma_s(k,j,i,ifr) = kappaes * rho;
-    prad->sigma_a(k,j,i,ifr) = kappaffr * rho * rho * tpower;
-    prad->sigma_ae(k,j,i,ifr) = prad->sigma_a(k,j,i,ifr);
-    prad->sigma_planck(k,j,i,ifr) = (kappaffp-kappaffr)*rho*rho*tpower;
+    pnrrad->sigma_s(k,j,i,ifr) = kappaes * rho;
+    pnrrad->sigma_a(k,j,i,ifr) = kappaffr * rho * rho * tpower;
+    pnrrad->sigma_pe(k,j,i,ifr) = pnrrad->sigma_a(k,j,i,ifr);
+    pnrrad->sigma_p(k,j,i,ifr) = (kappaffp-kappaffr)*rho*rho*tpower;
   }
   }}}
 
