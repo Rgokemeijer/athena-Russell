@@ -103,7 +103,7 @@ void MeshBlock::InitUserMeshBlockData(ParameterInput *pin)
 {
   
   
-  if(RADIATION_ENABLED){
+  if(NR_RADIATION_ENABLED){
       prad->EnrollOpacityFunction(DiskOpacity);
     
       gm = 0.5 * prad->crat * prad->crat;
@@ -122,7 +122,7 @@ void MeshBlock::InitUserMeshBlockData(ParameterInput *pin)
 
 void MeshBlock::UserWorkInLoop(void)
 {
-  if(RADIATION_ENABLED){
+  if(NR_RADIATION_ENABLED){
 
     if(prad->set_source_flag > 0)
        prad->set_source_flag--;
@@ -291,7 +291,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin)
   Real *ir_lab;
   
   Real crat, prat;
-  if(RADIATION_ENABLED){
+  if(NR_RADIATION_ENABLED){
     ir_cm.NewAthenaArray(prad->n_fre_ang);
     crat = prad->crat;
     prat = prad->prat;
@@ -356,7 +356,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin)
         Real coef3 = -press;
         
         Real gast;
-        if(RADIATION_ENABLED){
+        if(NR_RADIATION_ENABLED){
           gast = Rtsafe(Tequilibrium, 0.0, temp0, 1.e-12, coef1, coef2, coef3, 0.0);
           if(gast < 1.0) gast = 1.0;
         }else{
@@ -380,7 +380,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin)
         phydro->u(IEN,k,j,i) += 0.5*SQR(phydro->u(IM3,k,j,i))/phydro->u(IDN,k,j,i);
         
         // initialize radiation quantity
-        if(RADIATION_ENABLED){
+        if(NR_RADIATION_ENABLED){
           for(int n=0; n<prad->n_fre_ang; ++n)
              ir_cm(n) = gast * gast * gast * gast;
 
@@ -400,7 +400,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin)
 
   // Opacity will be set during initialization
 
-  if(RADIATION_ENABLED){
+  if(NR_RADIATION_ENABLED){
     
     ir_cm.DeleteAthenaArray();
 
@@ -630,7 +630,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin)
    }
       
      // Update total energy with mangefew
-    if(RADIATION_ENABLED){
+    if(NR_RADIATION_ENABLED){
      // Get cell-centered magnetic field
      pfield->CalculateCellCenteredField(pfield->b,pfield->bcc,pcoord,is,ie,js,je,ks,ke);
     
