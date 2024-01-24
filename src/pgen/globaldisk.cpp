@@ -80,6 +80,12 @@ void PseudoNewtonian( MeshBlock *pmb, const Real time, const Real dt,
   const AthenaArray<Real> &prim,
   const AthenaArray<Real> &bcc, AthenaArray<Real> &cons);
 
+void Tequilibrium(Real temperature, Real coef1, Real coef2, Real coef3,
+                  Real coef4, Real *fval, Real *dfval);
+
+double Rtsafe(void (*funcd)(double, double, double, double,double,double *,double *),
+      double x1, double x2, double xacc,
+      double coef1, double coef2, double coef3, double coef4);
 
 void Mesh::InitUserMeshData(ParameterInput *pin)
 {
@@ -355,7 +361,7 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin)
         Real coef2 = rho;
         Real coef3 = -press;
         
-        Real gast;
+        Real gast; // prob gas temperature
         if(NR_RADIATION_ENABLED){
           gast = Rtsafe(Tequilibrium, 0.0, temp0, 1.e-12, coef1, coef2, coef3, 0.0);
           if(gast < 1.0) gast = 1.0;
@@ -828,4 +834,88 @@ void PseudoNewtonian(MeshBlock *pmb, const Real time, const Real dt,
     }
   }
 
+}
+
+void Tequilibrium(Real temperature, Real coef1, Real coef2, Real coef3,
+      Real coef4, Real *fval, Real *dfval)
+{
+  // function is
+  //  coef1 * T^4 + coef2 * T + coef3 == 0
+  Real temp3 = temperature * temperature * temperature;
+  Real temp4 = temp3 * temperature;
+
+
+  *fval = coef1 * temp4 + coef2 * temperature + coef3;
+  *dfval = 4.0 * coef1 * temp3 + coef2;
+
+  return;
+
+}
+
+double Rtsafe(void (*funcd)(double, double, double, double,double,double *,double *),
+      double x1, double x2, double xacc,
+      double coef1, double coef2, double coef3, double coef4)
+{
+  int j;
+  double df,dx,dxold,f,fh,fl;
+  double temp,xh,xl,rts;
+  std::stringstream msg;
+
+  int maxit = 400;
+
+  (*funcd)(x1,coef1, coef2, coef3,coef4, &fl,&df);
+  (*funcd)(x2,coef1, coef2, coef3,coef4, &fh,&df);
+  if ((fl > 0.0 && fh > 0.0) || (fl < 0.0 && fh < 0.0)){
+    std::cout << "[rtsafe]:Root must be bracketed in rtsafe: Tl:" << x1 << "Th: "
+    << x2 << "\n fl: " << fl << "\n fh: " << fh << "coef1: " << coef1 << "coef2: "
+    << coef2 <<  "coef3: " << coef3 << "coef4: " << coef4 << "\n" << std::endl;
+
+    msg << "### FATAL ERROR in function [rtsafe]" << std::endl;
+    throw std::runtime_error(msg.str().c_str());
+  }
+  if (fl == 0.0) return x1;
+  if (fh == 0.0) return x2;
+  if (fl < 0.0) {
+    xl=x1;
+    xh=x2;
+  } else {
+    xh=x1;
+    xl=x2;
+  }
+  rts=0.5*(x1+x2);
+  dxold=fabs(x2-x1);
+  dx=dxold;
+  (*funcd)(rts,coef1, coef2, coef3,coef4, &f,&df);
+  for (j=1;j<=maxit;j++) {
+    if ((((rts-xh)*df-f)*((rts-xl)*df-f) > 0.0)
+        || (fabs(2.0*f) > fabs(dxold*df))) {
+      dxold=dx;
+      dx=0.5*(xh-xl);
+      rts=xl+dx;
+      if (xl == rts) return rts;
+    } else {
+      dxold=dx;
+      dx=f/df;
+      temp=rts;
+      rts -= dx;
+      if (temp == rts) return rts;
+    }
+    if (fabs(dx) < xacc) return rts;
+    (*funcd)(rts,coef1, coef2, coef3,coef4, &f,&df);
+    if (f < 0.0)
+      xl=rts;
+    else
+      xh=rts;
+  }
+
+  std::cout << "[rtsafe]:Maximum number of iterations exceeded in rtsafe: Tl:"
+    << x1 << "Th: "
+    << x2 << "\n fl: " << fl << "\n fh: " << fh << "coef1: " << coef1 << "coef2: "
+    << coef2 <<  "coef3: " << coef3 << "coef4: " << coef4 << "\n" << std::endl;
+
+  msg << "### FATAL ERROR in function [rtsafe]" << std::endl;
+    throw std::runtime_error(msg.str().c_str());
+
+
+  return 0.0;
 }
