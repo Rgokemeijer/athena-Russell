@@ -104,12 +104,12 @@ void MeshBlock::InitUserMeshBlockData(ParameterInput *pin)
   
   
   if(NR_RADIATION_ENABLED){
-      prad->EnrollOpacityFunction(DiskOpacity);
+      pnrrad->EnrollOpacityFunction(DiskOpacity);
     
-      gm = 0.5 * prad->crat * prad->crat;
+      gm = 0.5 * pnrrad->crat * pnrrad->crat;
 
   
-      prad->set_source_flag = 0;
+      pnrrad->set_source_flag = 0;
   
   }else{
       gm = 0.5 * 805.338 * 805.338;
@@ -124,8 +124,8 @@ void MeshBlock::UserWorkInLoop(void)
 {
   if(NR_RADIATION_ENABLED){
 
-    if(prad->set_source_flag > 0)
-       prad->set_source_flag--;
+    if(pnrrad->set_source_flag > 0)
+       pnrrad->set_source_flag--;
 
     int il=is, iu=ie, jl=js, ju=je, kl=ks, ku=ke;
     il -= NGHOST;
@@ -188,8 +188,8 @@ void MeshBlock::UserWorkInLoop(void)
           Real pb=0.0;
 
           // case 1, check superlum velocity
-          if(vel > prad->vmax * prad->crat){
-            Real ratio = prad->vmax * prad->crat / vel;
+          if(vel > pnrrad->vmax * pnrrad->crat){
+            Real ratio = pnrrad->vmax * pnrrad->crat / vel;
             vx *= ratio;
             vy *= ratio;
             vz *= ratio;
@@ -238,7 +238,7 @@ void MeshBlock::UserWorkInLoop(void)
                
             if(cf> cfmax) cfmax = cf;
             
-            Real ratio = cfmax/(prad->vmax * prad->crat);
+            Real ratio = cfmax/(pnrrad->vmax * pnrrad->crat);
 /*            if(ratio > 1.0){
                ratio = ratio * ratio;
                phydro->w(IDN,k,j,i) *= ratio;
@@ -292,9 +292,9 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin)
   
   Real crat, prat;
   if(NR_RADIATION_ENABLED){
-    ir_cm.NewAthenaArray(prad->n_fre_ang);
-    crat = prad->crat;
-    prat = prad->prat;
+    ir_cm.NewAthenaArray(pnrrad->n_fre_ang);
+    crat = pnrrad->crat;
+    prat = pnrrad->prat;
   }else{
     crat = 805.338;
     prat = 0.0;
@@ -381,16 +381,16 @@ void MeshBlock::ProblemGenerator(ParameterInput *pin)
         
         // initialize radiation quantity
         if(NR_RADIATION_ENABLED){
-          for(int n=0; n<prad->n_fre_ang; ++n)
+          for(int n=0; n<pnrrad->n_fre_ang; ++n)
              ir_cm(n) = gast * gast * gast * gast;
 
-          Real *mux = &(prad->mu(0,k,j,i,0));
-          Real *muy = &(prad->mu(1,k,j,i,0));
-          Real *muz = &(prad->mu(2,k,j,i,0));
+          Real *mux = &(pnrrad->mu(0,k,j,i,0));
+          Real *muy = &(pnrrad->mu(1,k,j,i,0));
+          Real *muz = &(pnrrad->mu(2,k,j,i,0));
 
-          ir_lab = &(prad->ir(k,j,i,0));
+          ir_lab = &(pnrrad->ir(k,j,i,0));
           
-          prad->pradintegrator->ComToLab(0,0,vphi,mux,muy,muz,ir_cm,ir_lab);
+          pnrrad->pradintegrator->ComToLab(0,0,vphi,mux,muy,muz,ir_cm,ir_lab);
         
         }// End Rad
         
