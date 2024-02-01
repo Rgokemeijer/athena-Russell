@@ -84,8 +84,8 @@ pfloor          = 1.e-12
 
 <radiation>
 nmu         = 2
-Prat        = 5.46103
-Crat        = 805.338
+prat        = 5.46103
+crat        = 805.338
 Tunit       = 1.e7
 Compton     = 1
 Planck      = 1
