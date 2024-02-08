@@ -807,21 +807,17 @@ void PseudoNewtonian(MeshBlock *pmb, const Real time, const Real dt,
 {
 
   AthenaArray<Real> &x1flux=pmb->phydro->flux[X1DIR];
-  Real g = pmb->peos->GetGamma();
-  Real temp_goal = 1000.0;
-  Real tau = 0.01;
 
   for(int k=pmb->ks; k<=pmb->ke; ++k){
     for(int j=pmb->js; j<=pmb->je; ++j){
       for(int i=pmb->is; i<=pmb->ie; ++i){
-        Real temp = prim(IPR,k,j,i) / prim(IDN,k,j,i);
         Real rho = prim(IDN,k,j,i);
         Real phic = -gm/(pmb->pcoord->x1v(i)-1.0);
         Real phil = -gm/(pmb->pcoord->x1f(i)-1.0);
         Real phir = -gm/(pmb->pcoord->x1f(i+1)-1.0);
         Real rr = pmb->pcoord->x1f(i+1);
         Real rl = pmb->pcoord->x1f(i);
-
+        
         Real areal = rl * rl;
         Real arear = rr * rr;
         Real vol = (rr*rr*rr-rl*rl*rl)/3.0;
@@ -831,17 +827,11 @@ void PseudoNewtonian(MeshBlock *pmb, const Real time, const Real dt,
                            areal*x1flux(IDN,k,j,i))*phic/vol;
         Real divrhovphi = (arear*x1flux(IDN,k,j,i+1)*phir -
                            areal*x1flux(IDN,k,j,i)*phil)/vol;
-
-        if (temp > temp_goal) {
-          cons(IEN,k,j,i) = cons(IEN,k,j,i)-dt/tau*prim(IDN,k,j,i)*(temp-temp_goal)/(g-1.0)+(dt*(phidivrhov - divrhovphi));
-        } else {
-             cons(IEN,k,j,i) += (dt*(phidivrhov - divrhovphi));
-        }
-
+        cons(IEN,k,j,i) += (dt*(phidivrhov - divrhovphi));
+        
       }
     }
   }
-return;
 }
 
 void Tequilibrium(Real temperature, Real coef1, Real coef2, Real coef3,
