@@ -8,7 +8,7 @@ problem_id = disk        # problem ID: basename of output filenames
 
 <output1>
 file_type  = hdf5       # Binary data dump
-dt         = 0.005       # time increment between outputs
+dt         = 0.05       # time increment between outputs
 variable   = prim
 xdmf       = 0
 
@@ -19,7 +19,7 @@ xdmf       = 0
 
 <output3>
 file_type  = rst       # Binary data dump
-dt         = 0.01       # time increment between outputs
+dt         = 1       # time increment between outputs
 
 
 <time>
@@ -29,7 +29,7 @@ tlim       = 2000000.0      # time limit
 
 
 <mesh>
-nx1        = 64       # Number of zones in X1-direction
+nx1        = 64       # Number of zones in X1-direction, r
 x1min      = 2.0     # minimum value of X1
 x1max      = 801.462      # maximum value of X1
 ix1_bc     = user  # inner-X1 boundary flag
@@ -40,7 +40,7 @@ x1rat      = 1.09817
 
 
 
-nx2        = 32       # Number of zones in X2-direction
+nx2        = 32       # Number of zones in X2-direction, theta
 x2min      = 0.00      # minimum value of X2
 x2max      = 3.141592653589793       # maximum value of X2
 ix2_bc     = polar  # inner-X2 boundary flag
@@ -49,7 +49,7 @@ ix2_rad_bc = polar
 ox2_rad_bc = polar
 
 
-nx3        = 64         # Number of zones in X3-direction
+nx3        = 32         # Number of zones in X3-direction, phi
 x3min      = 0.0      # minimum value of X3
 x3max      = 6.283185307179586       # maximum value of X3
 ix3_bc     = periodic  # inner-X3 boundary flag
@@ -63,7 +63,7 @@ refinement = static
 <meshblock>
 nx1         = 16 
 nx2         = 4 
-nx3         = 16
+nx3         = 8
 
 <refinement1>
 x1min       = 3
